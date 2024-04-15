@@ -1,134 +1,117 @@
-﻿// This is my project folder.
-//Connect Four Game by Chidiebere Nwigwe and Anthony Odinukwe.
+﻿using System;
 
-using System.Data.Common;
-using System.Numerics;
-
-namespace Connect4Game
+public enum Player
 {
-    public class GameBoard
+    None,
+    Player1,
+    Player2
+}
+
+public class Connect4Game
+{
+    private const int Rows = 6;
+    private const int Columns = 7;
+    private Player[,] board = new Player[Rows, Columns];
+    private Player currentPlayer = Player.Player1;
+
+    public Connect4Game()
     {
-        public static int Rows = 6;
-        public static int Columns = 7;
-        public char[,] board = new char[Rows, Columns];
-
-        public void InitializeBoard()
-        {
-            for (int i = 0; i < Rows; i++)
-            {
-                for (int j = 0; j < Columns; j++)
-                {
-                    board[i, j] = '#';
-                }
-            }
-        }
-        public void DisplayBoard()
-        {
-            // InitializeBoard();
-            for (int i = 0; i < Rows; i++)
-            {
-                Console.Write("| ");
-                for (int j = 0; j < Columns; j++)
-                {
-
-                    Console.Write(board[i, j] + "  ");
-                    // Console.Write("#  ");
-                }
-                Console.Write("\b |");
-                Console.WriteLine();
-            }
-            Console.WriteLine("  1  2  3  4  5  6  7");
-            Console.WriteLine();
-        }
-
-        public void DropPiece(int col)
-        {
-            int colu = col - 1;
-
-            //board.DisplayBoard();
-            //InitializeBoard();
-
-            for (int row = Rows - 1; row > 0; row--)
-            {
-                //  Console.Write("| ");
-                //   for (int j = 0; j < Columns; j++)
-                {
-                    if (board[row, colu] == '#')
-                    {
-
-
-                        board[row, colu] = 'X';
-                        break;
-                    }
-                    //      Console.Write("\b |");
-                    //      Console.WriteLine();
-                }
-                //   Console.WriteLine("  1  2  3  4  5  6  7");
-
-            }
-            DisplayBoard();
-        }
-
-
+        InitializeBoard();
     }
 
-
-
-    class ControllerClass
+    public void InitializeBoard()
     {
-        //public strin
-        public string Name { get; set; }
-        public string currentPlayer { get; set; }
-        private const int Rows = 6;
-        private const int Columns = 7;
-        public GameBoard board { get; set; }
-        public ControllerClass(string name)
+        for (int i = 0; i < Rows; i++)
         {
-            Name = name;
-            currentPlayer = "X";
-            board = new GameBoard();
-        }
-        public string GetThePlayer()
-        {
-            return Name;
-        }
-        public void DropPiece(int col)
-        {
-            int colu = col;
-
-            //board.DisplayBoard();
-            board.InitializeBoard();
-
-
+            for (int j = 0; j < Columns; j++)
+            {
+                board[i, j] = Player.None;
+            }
         }
     }
 
-    class Program
+    public void DisplayBoard()
     {
-        static void Main(string[] args)
+        for (int i = 0; i < Rows; i++)
         {
-            GameBoard board = new GameBoard();
-            board.InitializeBoard();
-            board.DisplayBoard();
+            for (int j = 0; j < Columns; j++)
+            {
+                char symbol = board[i, j] switch
+                {
+                    Player.None => '#',
+                    Player.Player1 => 'X',
+                    Player.Player2 => 'O',
+                    _ => throw new NotImplementedException()
+                };
+                Console.Write(symbol + " ");
+            }
             Console.WriteLine();
+        }
+    }
 
-            //for(int i = 0)
-            board.DropPiece(1);
-            board.DropPiece(2);
-            board.DropPiece(7);
-            board.DropPiece(1);
+    public bool DropPiece(int column)
+    {
+        if (column < 0 || column >= Columns || board[0, column] != Player.None)
+        {
+            return false; // Invalid move
+        }
 
-            Console.WriteLine();
-            Console.WriteLine("Alright... \nWelcome to Your Connect 4 Game");
-            Console.WriteLine("Player 1, Please Enter Your  Name: ");
-            string player1 = Console.ReadLine();
-            Console.WriteLine(player1);
-            Console.WriteLine("Player 2, Please Enter Your  Name: ");
-            string player2 = Console.ReadLine();
-            Console.WriteLine(player2);
+        for (int row = Rows - 1; row >= 0; row--)
+        {
+            if (board[row, column] == Player.None)
+            {
+                board[row, column] = currentPlayer;
+                return true;
+            }
+        }
 
+        return false; // Column is full
+    }
 
-            Console.ReadKey();
+    public bool CheckWin(Player player)
+    {
+        // Implement win condition checking logic
+        return false;
+    }
+
+    public Player CurrentPlayer => currentPlayer;
+
+    public void SwitchPlayer()
+    {
+        currentPlayer = currentPlayer == Player.Player1 ? Player.Player2 : Player.Player1;
+    }
+}
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        Connect4Game game = new Connect4Game();
+        game.DisplayBoard();
+
+        while (true)
+        {
+            Console.WriteLine($"Player {game.CurrentPlayer}, choose a column (0-6): ");
+            int column;
+            if (!int.TryParse(Console.ReadLine(), out column) || column < 0 || column >= 7)
+            {
+                Console.WriteLine("Invalid input. Please enter a number between 0 and 6.");
+                continue;
+            }
+            if (game.DropPiece(column))
+            {
+                game.DisplayBoard();
+                if (game.CheckWin(game.CurrentPlayer))
+                {
+                    Console.WriteLine($"Player {game.CurrentPlayer} wins!");
+                    break;
+                }
+                game.SwitchPlayer();
+            }
+            else
+            {
+                Console.WriteLine("Invalid move. Try again.");
+            }
         }
     }
 }
