@@ -12,7 +12,7 @@ namespace Connect4Games
     // Game Class
     public class Connect4Game
     {
-        public Connect4GameBoard Connect4GameBoard { get; set; }
+        private Connect4GameBoard Connect4GameBoard { get; set; }
         private Player player1; // player 1 which will be X
         private Player player2; // player which will be O
         private Player currentPlayer; // Current player
@@ -26,6 +26,7 @@ namespace Connect4Games
             Console.WriteLine("Enter your mode number(1 or 2): ");
             bool validInput = false;
             int number = 0;
+            // code to ensure enters lid mode as an input
             while (!validInput)
             {
                 string mode = (Console.ReadLine());
@@ -41,7 +42,7 @@ namespace Connect4Games
                 {
                     validInput = true;
                 }
-
+                // mode = 1 means player vs computer player
                 if (mode == "1")
                 {
                     Console.WriteLine("Player 1, Please Enter Your Desired Name: ");
@@ -49,6 +50,7 @@ namespace Connect4Games
                     player1 = new Human(name1, 'X');
                     player2 = new ComputerPlayer("Computer Player", 'O');
                 }
+                // mode = 1 means player vs another player
                 else if (mode == "2")
                 {
                     Console.WriteLine("Player 1, Please Enter Your Desired Name: ");
@@ -64,16 +66,15 @@ namespace Connect4Games
             Connect4GameBoard = new Connect4GameBoard();
             Console.WriteLine("\nThank You!, Now below is what your board's layout looks like. \nEnjoy your game.");
 
-            currentPlayer = player1;
+            currentPlayer = player1; // current player will always be player 1 which is player x
 
         }
-
-
+        // method to start game
         public void Start()
         {
-            // Main game loop
             Console.WriteLine();
-            Connect4GameBoard.InitializeBoard();
+            Connect4GameBoard.InitializeBoard(); // initialize board before displaying
+            // Main game loop
             while (!Connect4GameBoard.IsGameOver())
             {
                 Connect4GameBoard.DisplayBoard(); // Print the current state of the board
@@ -86,7 +87,7 @@ namespace Connect4Games
             if (Connect4GameBoard.CheckWin())
 
             {
-                Connect4GameBoard.DisplayBoard();
+                Connect4GameBoard.DisplayBoard(); // display board to see who won
                 if (currentPlayer == player1)
                 {
                     currentPlayer.Char = '0';
@@ -114,18 +115,13 @@ namespace Connect4Games
     }
 
 }
-
-
-
 // board Class
 public class Connect4GameBoard
 {
-    public static int Rows = 6;
-    public static int Columns = 7;
-    public char[,] board = new char[Rows, Columns];
-    public int turn = 0;
-
-    public void InitializeBoard()
+    private static int Rows = 6;
+    private static int Columns = 7;
+    public char[,] board = new char[Rows, Columns]; // an array of char with size of Rows * Columns
+    public void InitializeBoard() // method that initializes my board with #
     {
         for (int i = 0; i < Rows; i++)
         {
@@ -135,7 +131,7 @@ public class Connect4GameBoard
             }
         }
     }
-    public void DisplayBoard()
+    public void DisplayBoard() // method that displays my board
     {
         for (int i = 0; i < Rows; i++)
         {
@@ -152,13 +148,13 @@ public class Connect4GameBoard
         Console.WriteLine();
     }
 
-    public bool DropPiece(int col, Player playerTurn)
+    public bool DropPiece(int col, Player playerTurn) // method to drop a char
     {
-        for (int row = Rows - 1; row >= 0; row--)
+        for (int row = Rows - 1; row >= 0; row--) // starts from bottom row
         {
             if (board[row, col] == '#')
             {
-                board[row, col] = playerTurn.Char;
+                board[row, col] = playerTurn.Char; // replaces exact spot in board with char if it has #
                 return true;
             }
         }
@@ -171,7 +167,6 @@ public class Connect4GameBoard
         // check win in rows horizontally
         for (int row = 0; row < Rows; row++)
         {
-
             for (int col = 0; col < 4; col++)
             {
                 if (board[row, col] != '#' &&
@@ -183,7 +178,6 @@ public class Connect4GameBoard
                 }
             }
         }
-
         // check win in rows vertically
         for (int col = 0; col < Columns; col++)
         {
@@ -198,9 +192,7 @@ public class Connect4GameBoard
                 }
             }
         }
-
         // check win diagonally
-
         for (int row = 0; row < 3; row++)
         {
             for (int col = 0; col < 4; col++)
@@ -214,7 +206,6 @@ public class Connect4GameBoard
                 }
             }
         }
-
         for (int row = 0; row < 3; row++)
         {
             for (int col = 3; col < Columns; col++)
@@ -228,7 +219,6 @@ public class Connect4GameBoard
                 }
             }
         }
-
         return false;
     }
     // Check if the board is full
@@ -247,14 +237,12 @@ public class Connect4GameBoard
         return true; // Return true if the board is full
     }
     // Check for win or draw
-    public bool IsGameOver()
+    public bool IsGameOver() // checks if game is over either by checking if there is a winner or if board is full
     {
         return CheckWin() || IsBoardFull();
     }
 
 }
-
-
 
 // my player class
 public abstract class Player
@@ -274,9 +262,8 @@ public class Human : Player
 {
     public Human(string name, char sign) : base(name, sign)
     {
-
     }
-    public override void Play(Connect4GameBoard board)
+    public override void Play(Connect4GameBoard board) // overriding play method from base class
     {
         bool madeAMove = false;
         while (!madeAMove)
@@ -308,27 +295,20 @@ public class Human : Player
             }
         }
     }
-
-
 }
 
 // my computer player class
 public class ComputerPlayer : Player
 {
-
     public ComputerPlayer(string name, char sign) : base(name, sign)
     {
-
     }
-
     // Method to make a move on the board
-    public override void Play(Connect4GameBoard board)
+    public override void Play(Connect4GameBoard board)  // overriding play method from base class
     {
         Random randomNo = new Random();
         Console.WriteLine("Enter a column number from 1 to 7: ");
-
         int column;
-
         do
         {
             column = randomNo.Next(1, 7); // random number from 0 to 7
@@ -336,14 +316,12 @@ public class ComputerPlayer : Player
         } while (!board.DropPiece(column - 1, this)); // Keep generating until a valid move is made
     }
 }
-
-
 class Program
 {
     static void Main(string[] args)
     {
         Connect4Game game = new Connect4Game();
-        game.Start();
+        game.Start(); // start my game.
     }
 }
 
