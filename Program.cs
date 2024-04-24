@@ -36,8 +36,8 @@ namespace Connect4Games
             // Console.WriteLine(player2);
             // Main game loop
             Connect4GameBoard.InitializeBoard();
-
-            while (Connect4GameBoard.IsGameOver() == true)
+            // Console.WriteLine(Connect4GameBoard.IsGameOver());
+            while (!Connect4GameBoard.IsGameOver())
             {
                 //Console.Clear(); // Clears the console
                 Connect4GameBoard.DisplayBoard(); // Print the current state of the board
@@ -50,7 +50,12 @@ namespace Connect4Games
             //Console.Clear(); // Clears the console
             //Connect4GameBoard.DisplayBoard(); // Prints the final state of the board
             if (Connect4GameBoard.CheckWin())
+
             {
+                Connect4GameBoard.DisplayBoard();
+                if (currentPlayer == player1) { currentPlayer.Char = '0'; }
+                else { currentPlayer.Char = 'X'; }
+
                 Console.WriteLine($"Player {currentPlayer.Char} wins!"); // Display the winner
             }
             else
@@ -134,7 +139,7 @@ public class Connect4GameBoard
 
             for (int col = 0; col < 4; col++)
             {
-                if (board[row, col] != ' ' &&
+                if (board[row, col] != '#' &&
                     board[row, col] == board[row, col + 1] &&
                     board[row, col] == board[row, col + 2] &&
                     board[row, col] == board[row, col + 3])
@@ -149,7 +154,7 @@ public class Connect4GameBoard
         {
             for (int row = 0; row < 3; row++)
             {
-                if (board[row, col] != ' ' &&
+                if (board[row, col] != '#' &&
                     board[row, col] == board[row + 1, col] &&
                     board[row, col] == board[row + 2, col] &&
                     board[row, col] == board[row + 3, col])
@@ -165,7 +170,7 @@ public class Connect4GameBoard
         {
             for (int col = 0; col < 4; col++)
             {
-                if (board[row, col] != ' ' &&
+                if (board[row, col] != '#' &&
                     board[row, col] == board[row + 1, col + 1] &&
                     board[row, col] == board[row + 2, col + 2] &&
                     board[row, col] == board[row + 3, col + 3])
@@ -179,7 +184,7 @@ public class Connect4GameBoard
         {
             for (int col = 3; col < Columns; col++)
             {
-                if (board[row, col] != ' ' &&
+                if (board[row, col] != '#' &&
                     board[row, col] == board[row + 1, col - 1] &&
                     board[row, col] == board[row + 2, col - 2] &&
                     board[row, col] == board[row + 3, col - 3])
@@ -198,7 +203,7 @@ public class Connect4GameBoard
         {
             for (int col = 0; col < Columns; col++)
             {
-                if (board[row, col] == ' ')
+                if (board[row, col] == '#')
                 {
                     return false; // Return false if there is still space
                 }
@@ -210,6 +215,7 @@ public class Connect4GameBoard
     public bool IsGameOver()
     {
         return CheckWin() || IsBoardFull();
+        // return CheckWin();
     }
 
 }
