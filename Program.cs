@@ -1,8 +1,11 @@
 ﻿
 using Connect4Games;
+using System.ComponentModel.DataAnnotations;
 using System.Data.Common;
 using System.Numerics;
 using System.Transactions;
+using System.Xml.Linq;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Connect4Games
 {
@@ -15,52 +18,97 @@ namespace Connect4Games
         private Player currentPlayer; // Current player
         public Connect4Game()
         {
-            string name1 = "Chidi";
-            string name2 = "Tony";
+            Console.WriteLine();
+            Console.WriteLine("Alright... \nWelcome to Your Connect 4 Game");
+            Console.WriteLine("Please Select a mode from below:\n(Input 1 or 2)");
+            Console.WriteLine("1. Play against computer");
+            Console.WriteLine("2. Play against another player");
+            Console.WriteLine("Enter your mode number(1 or 2): ");
+            bool validInput = false;
+            int number = 0;
+            while (!validInput)
+            {
+                string mode = (Console.ReadLine());
+                if (!int.TryParse(mode, out number))
+                {
+                    Console.WriteLine("Invalid Input. Please enter a valid number(1 or 2):");
+                }
+                else if (mode != "1" && mode != "2")
+                {
+                    Console.WriteLine("Invalid input. Please enter either 1 or 2.");
+                }
+                else
+                {
+                    validInput = true;
+                }
+
+                if (mode == "1")
+                {
+                    Console.WriteLine("Player 1, Please Enter Your Desired Name: ");
+                    string name1 = Console.ReadLine();
+                    player1 = new Human(name1, 'X');
+                    player2 = new ComputerPlayer("Computer Player", 'O');
+                }
+                else if (mode == "2")
+                {
+                    Console.WriteLine("Player 1, Please Enter Your Desired Name: ");
+                    string name1 = Console.ReadLine();
+                    Console.WriteLine("Player 2, Please Enter Your Desired  Name: ");
+                    string name2 = Console.ReadLine();
+                    player1 = new Human(name1, 'X');
+                    player2 = new Human(name2, '0');
+
+                }
+
+            }
             Connect4GameBoard = new Connect4GameBoard();
-            player1 = new Human(name1, 'X');
-            player2 = new Human(name2, '0');
+            Console.WriteLine("\nThank You!, Now below is what your board's layout looks like. \nEnjoy your game.");
+
             currentPlayer = player1;
+
         }
 
 
         public void Start()
         {
-            Console.WriteLine();
-            Console.WriteLine("Alright... \nWelcome to Your Connect 4 Game");
-            //  Console.WriteLine("Player 1, Please Enter Your  Name: ");
-            ////  player1.Name = Console.ReadLine();
-            // Console.WriteLine(player1);
-            //  Console.WriteLine("Player 2, Please Enter Your  Name: ");
-            //  player2.Name = Console.ReadLine();
-            // Console.WriteLine(player2);
             // Main game loop
+            Console.WriteLine();
             Connect4GameBoard.InitializeBoard();
-            // Console.WriteLine(Connect4GameBoard.IsGameOver());
             while (!Connect4GameBoard.IsGameOver())
             {
-                //Console.Clear(); // Clears the console
                 Connect4GameBoard.DisplayBoard(); // Print the current state of the board
-                Console.WriteLine($"Player {currentPlayer.Char}'s turn:"); // Display whose turn it is
-                currentPlayer.Play(Connect4GameBoard); // Let the current player make a move
-                currentPlayer = (currentPlayer == player1) ? player2 : player1; // Switches players
+                Console.WriteLine($"Player {currentPlayer.Name} (Player {currentPlayer.Char}'s) turn:"); // Display whose turn it is
+                currentPlayer.Play(Connect4GameBoard); // Let the current player play
+                currentPlayer = (currentPlayer == player1) ? player2 : player1; // Switches player's turn
             }
 
             // The game over control
-            //Console.Clear(); // Clears the console
-            //Connect4GameBoard.DisplayBoard(); // Prints the final state of the board
             if (Connect4GameBoard.CheckWin())
 
             {
                 Connect4GameBoard.DisplayBoard();
-                if (currentPlayer == player1) { currentPlayer.Char = '0'; }
-                else { currentPlayer.Char = 'X'; }
+                if (currentPlayer == player1)
+                {
+                    currentPlayer.Char = '0';
+                    currentPlayer.Name = player2.Name;
+                }
+                else
+                {
+                    currentPlayer.Char = 'X';
+                    currentPlayer.Name = player1.Name;
+                }
 
-                Console.WriteLine($"Player {currentPlayer.Char} wins!"); // Display the winner
+                Console.WriteLine($"Player {currentPlayer.Name} (Player {currentPlayer.Char}) wins!"); // Display the winner
+                Console.ReadKey();
+                Console.WriteLine("\nThanks For Playing Our Game");
+                Console.ReadKey();
             }
             else
             {
                 Console.WriteLine("It's a draw!"); // Display if it is a draw
+                Console.ReadKey();
+                Console.WriteLine("\nThanks For Playing Our Game");
+                Console.ReadKey();
             }
         }
     }
@@ -89,7 +137,6 @@ public class Connect4GameBoard
     }
     public void DisplayBoard()
     {
-        // InitializeBoard();
         for (int i = 0; i < Rows; i++)
         {
             Console.Write("| ");
@@ -97,7 +144,6 @@ public class Connect4GameBoard
             {
 
                 Console.Write(board[i, j] + "  ");
-                // Console.Write("#  ");
             }
             Console.Write("\b |");
             Console.WriteLine();
@@ -106,28 +152,17 @@ public class Connect4GameBoard
         Console.WriteLine();
     }
 
-    public bool DropPiece(int col, Human playerTurn)
+    public bool DropPiece(int col, Player playerTurn)
     {
-        int colu = col - 1;
-
-
         for (int row = Rows - 1; row >= 0; row--)
         {
             if (board[row, col] == '#')
             {
-
-
-                //board[row, colu] = char.Parse(player[turn]);
                 board[row, col] = playerTurn.Char;
-                Console.WriteLine(playerTurn.Char);
                 return true;
-                break;
             }
         }
-
-        //DisplayBoard();
         return false;
-
     }
 
     public bool CheckWin()
@@ -215,17 +250,15 @@ public class Connect4GameBoard
     public bool IsGameOver()
     {
         return CheckWin() || IsBoardFull();
-        // return CheckWin();
     }
 
 }
 
 
 
-
+// my player class
 public abstract class Player
 {
-    //public strin
     public string Name { get; set; }
     public char Char { get; set; }
     public Player(string name, char sign)
@@ -236,6 +269,7 @@ public abstract class Player
     public abstract void Play(Connect4GameBoard board);
 }
 
+// my human player class derived from player class
 public class Human : Player
 {
     public Human(string name, char sign) : base(name, sign)
@@ -248,65 +282,71 @@ public class Human : Player
         while (!madeAMove)
         {
             Console.WriteLine("Enter a column number from 1 to 7: ");
-            int colNo = Int32.Parse(Console.ReadLine());
-            if ((colNo >= 1) && (colNo <= 7))
+            int colNo;
+            if (int.TryParse(Console.ReadLine(), out colNo))
             {
-                colNo -= 1;
-                if (board.DropPiece(colNo, this))
+                if (colNo >= 1 && colNo <= 7)
                 {
-                    madeAMove = true;
+                    colNo -= 1;
+                    if (board.DropPiece(colNo, this))
+                    {
+                        madeAMove = true;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Column is full. Please enter another column number.");
+                    }
                 }
                 else
                 {
-                    Console.WriteLine("Column is full. Please enter another column number.");
+                    Console.WriteLine("Please enter a column number from the range 1 - 7.");
                 }
             }
             else
             {
-                Console.WriteLine("Please Enter A column from Range of 1 - 7.");
-
+                Console.WriteLine("Invalid input. Please enter a valid number.");
             }
-
-
         }
-
-
     }
 
 
 }
+
+// my computer player class
+public class ComputerPlayer : Player
+{
+
+    public ComputerPlayer(string name, char sign) : base(name, sign)
+    {
+
+    }
+
+    // Method to make a move on the board
+    public override void Play(Connect4GameBoard board)
+    {
+        Random randomNo = new Random();
+        Console.WriteLine("Enter a column number from 1 to 7: ");
+
+        int column;
+
+        do
+        {
+            column = randomNo.Next(1, 7); // random number from 0 to 7
+            Console.WriteLine(column);
+        } while (!board.DropPiece(column - 1, this)); // Keep generating until a valid move is made
+    }
+}
+
 
 class Program
 {
     static void Main(string[] args)
     {
-        /* Connect4GameBoard board = new Connect4GameBoard();
-         board.InitializeBoard();
-         board.DisplayBoard();
-         Console.WriteLine();
-
-         //for(int i = 0; i < 42; i++){
-           //  int j = 1
-           //if( j == 7){  }
-     //}
-         board.DropPiece(1);
-         board.DropPiece(2);
-         board.DropPiece(7);
-         board.DropPiece(1);
-
-         Console.WriteLine();
-         Console.WriteLine("Alright... \nWelcome to Your Connect 4 Game");
-         Console.WriteLine("Player 1, Please Enter Your  Name: ");
-         string player1 = Console.ReadLine();
-         Console.WriteLine(player1);
-         Console.WriteLine("Player 2, Please Enter Your  Name: ");
-         string player2 = Console.ReadLine();
-         Console.WriteLine(player2);
-
-
-         Console.ReadKey();*/
-
         Connect4Game game = new Connect4Game();
         game.Start();
     }
 }
+
+
+
+
